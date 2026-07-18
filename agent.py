@@ -202,7 +202,14 @@ only, both when both are material, and escalate when a human-only action/sensiti
             ssl_context = ssl.create_default_context()
         # Free-tier Gemini quotas can temporarily throttle a small batch.  Respect
         # the service-provided retry delay instead of leaving a partial answers
-        # file for the evaluator to grade.
+        # file for the evaluator to grade.  In a serverless deployment the wait
+        # must stay under the function's execution budget, so the ceiling is
+        # configurable (GEMINI_MAX_RETRY_SECONDS=0 disables the backoff sleep and
+        # fails fast instead of triggering a platform timeout).
+        try:
+            max_retry_delay = float(os.environ.get("GEMINI_MAX_RETRY_SECONDS", "60"))
+        except ValueError:
+            max_retry_delay = 60.0
         for attempt in range(3):
             try:
                 with urllib.request.urlopen(request, timeout=20, context=ssl_context) as response:
@@ -219,8 +226,10 @@ only, both when both are material, and escalate when a human-only action/sensiti
                 except (AttributeError, TypeError, ValueError):
                     delay = 30.0
                 # Add a little headroom so the follow-up request lands after the
-                # quota window, while bounding the wait for a CLI invocation.
-                delay = min(max(delay + 1, 1), 60)
+                # quota window, while bounding the wait for the caller's budget.
+                delay = min(max(delay + 1, 1), max_retry_delay)
+                if delay <= 0:
+                    raise RuntimeError(f"Gemini request failed ({exc.code}): {detail}") from exc
                 print(f"Gemini rate limited; retrying in {delay:.1f}s...", file=sys.stderr)
                 time.sleep(delay)
             except urllib.error.URLError as exc:
