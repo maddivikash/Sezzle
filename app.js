@@ -43,8 +43,18 @@ question.addEventListener('keydown', (event) => {
   if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); form.requestSubmit(); }
 });
 
+let limitReached = false;
+
+function lockComposer() {
+  limitReached = true;
+  send.disabled = true; question.disabled = true;
+  question.placeholder = 'Message limit reached for this session';
+  document.querySelectorAll('.suggestions button').forEach((button) => { button.disabled = true; });
+}
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
+  if (limitReached) return;
   const text = question.value.trim(); if (!text) return;
   addMessage(text, 'user'); question.value = ''; question.style.height = 'auto'; send.disabled = true;
   const pending = addTyping();
@@ -52,8 +62,9 @@ form.addEventListener('submit', async (event) => {
     const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: text, user_id: userId.value }) });
     const result = await response.json();
     pending.remove();
+    if (response.status === 429 || result.limit_reached) { addMessage(result.error || 'You’ve reached the message limit for this session.', 'assistant'); lockComposer(); return; }
     if (!response.ok) throw new Error(result.error || 'Something went wrong.');
     addMessage(result.answer, 'assistant', result.route);
   } catch (error) { pending.remove(); addMessage(error.message || 'Unable to reach support right now. Please try again.', 'assistant'); }
-  finally { send.disabled = false; question.focus(); }
+  finally { if (!limitReached) { send.disabled = false; question.focus(); } }
 });

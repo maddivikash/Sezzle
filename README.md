@@ -44,6 +44,10 @@ A static chat UI (`index.html`, `styles.css`, `app.js`) talks to a Vercel server
 
 Deployment environment variables: `GEMINI_API_KEY` (required), `GEMINI_MODEL`, and `GEMINI_MAX_RETRY_SECONDS` (bounds the 429 backoff so a rate-limit surfaces as a clean error instead of a serverless timeout; defaults to 60 for the CLI, set low in production).
 
+### Message rate limiting
+
+Because the serverless function is stateless, per-visitor limits use a shared store: **Upstash Redis** (added via the Vercel Marketplace, which injects `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`). Each request atomically increments a per-IP counter (`ratelimit:msg:<ip>`) with a rolling window; past the cap the endpoint returns `429` with `limit_reached`, and the UI shows a session-limit note and locks the composer. IP is used as the key because the demo account selector is client-chosen and not authenticated. Tunable via `RATE_LIMIT_MAX` (default `50`) and `RATE_LIMIT_WINDOW_SECONDS` (default `86400`). Enforcement **fails open**: with no store configured or on any Redis error, requests are allowed, so a storage outage never blocks support.
+
 ## Honest limitations / next steps
 
 This is intentionally a take-home-sized retrieval system: lexical ranking may miss paraphrases, and high-risk keyword detection should become a measured classifier. I would add adversarial tests, structured telemetry, policy versioning, answer caching, retrieval-recall monitoring, and a human escalation integration. `artifacts/ITERATION.md` documents the recorded baseline and final evaluations.
