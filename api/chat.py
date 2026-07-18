@@ -20,10 +20,10 @@ from agent import SupportAgent
 # Enforcement fails open: with no store configured or on any Redis error the
 # request is allowed, so a storage outage never blocks support.
 try:
-    RATE_LIMIT_MAX = int(os.environ.get("RATE_LIMIT_MAX", "50"))
+    RATE_LIMIT_MAX = int(os.environ.get("RATE_LIMIT_MAX", "30"))
     RATE_LIMIT_WINDOW = int(os.environ.get("RATE_LIMIT_WINDOW_SECONDS", "86400"))
 except ValueError:
-    RATE_LIMIT_MAX, RATE_LIMIT_WINDOW = 50, 86400
+    RATE_LIMIT_MAX, RATE_LIMIT_WINDOW = 30, 86400
 
 
 def _redis_config() -> tuple[str | None, str | None]:

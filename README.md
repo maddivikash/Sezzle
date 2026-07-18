@@ -46,7 +46,7 @@ Deployment environment variables: `GEMINI_API_KEY` (required), `GEMINI_MODEL`, a
 
 ### Message rate limiting
 
-Because the serverless function is stateless, per-visitor limits use a shared store: **Upstash Redis** (added via the Vercel Marketplace, which injects `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`). Each request atomically increments a per-IP counter (`ratelimit:msg:<ip>`) with a rolling window; past the cap the endpoint returns `429` with `limit_reached`, and the UI shows a session-limit note and locks the composer. IP is used as the key because the demo account selector is client-chosen and not authenticated. Tunable via `RATE_LIMIT_MAX` (default `50`) and `RATE_LIMIT_WINDOW_SECONDS` (default `86400`). Enforcement **fails open**: with no store configured or on any Redis error, requests are allowed, so a storage outage never blocks support.
+Because the serverless function is stateless, per-visitor limits use a shared store: **Upstash Redis** (added via the Vercel Marketplace, which injects `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`). Each request atomically increments a per-IP counter (`ratelimit:msg:<ip>`) with a rolling window; past the cap the endpoint returns `429` with `limit_reached`, and the UI shows a session-limit note and locks the composer. IP is used as the key because the demo account selector is client-chosen and not authenticated. Tunable via `RATE_LIMIT_MAX` (default `30`) and `RATE_LIMIT_WINDOW_SECONDS` (default `86400`). Enforcement **fails open**: with no store configured or on any Redis error, requests are allowed, so a storage outage never blocks support.
 
 ## Honest limitations / next steps
 
