@@ -2,6 +2,10 @@
 
 A deliberately small, LLM-powered support assistant for synthetic Sezzle policy and order data. It uses Gemini’s `generateContent` REST API with a strict system prompt and JSON output. No external Python packages are required.
 
+## Live demo
+
+An optional interactive demo is available at [sezzle-support-agent.vercel.app](https://sezzle-support-agent.vercel.app/). It uses synthetic demo accounts only; the CLI contract below remains the evaluation entry point.
+
 ## Run
 
 Use Python 3.10+ and set your key locally (the key is neither committed nor logged). The easiest option is a local `.env` file:
@@ -34,4 +38,4 @@ The agent retrieves up to three relevant local policy files, then performs a sco
 
 ## Honest limitations / next steps
 
-This is intentionally a take-home-sized retrieval system: lexical ranking may miss paraphrases, and high-risk keyword detection should become a measured classifier. I would add adversarial tests, structured telemetry, policy versioning, answer caching, retrieval-recall monitoring, and a human escalation integration. `artifacts/ITERATION.md` documents the baseline and final evaluation once a Gemini key is available; it must be generated from real runs rather than fabricated.
+This is intentionally a take-home-sized retrieval system: lexical ranking may miss paraphrases, and high-risk keyword detection should become a measured classifier. I would add adversarial tests, structured telemetry, policy versioning, answer caching, retrieval-recall monitoring, and a human escalation integration. `artifacts/ITERATION.md` documents the recorded baseline and final evaluations.

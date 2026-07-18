@@ -1,15 +1,21 @@
 # Iteration evidence
 
-This file is intentionally incomplete until Gemini is run with a locally configured API key.
+## Baseline — 10/10 visible cases passed
 
-Run the baseline, inspect each answer, make one evidence-driven change, then preserve both answer files:
+The first full Gemini run is preserved in `first_answers.jsonl`. Regex assertions and
+routes all passed. During qualitative review, however, I identified a privacy-minimization
+gap: sensitive requests that were already guaranteed to escalate could still trigger an
+otherwise authorized order lookup, placing unnecessary account context in the LLM prompt.
 
-```bash
-python3 run_cases.py cases/golden_visible.jsonl artifacts/first_answers.jsonl
-python3 evaluate_visible.py cases/golden_visible.jsonl artifacts/first_answers.jsonl
-# make one documented improvement
-python3 run_cases.py cases/golden_visible.jsonl artifacts/final_answers.jsonl
-python3 evaluate_visible.py cases/golden_visible.jsonl artifacts/final_answers.jsonl
-```
+## Change
 
-Replace this note with: baseline score; failures grouped by failure taxonomy; exact change; final score; and remaining failures. Do not claim a run that did not happen.
+For forced-escalation requests (fraud, hardship, dispute filing, credit-report corrections,
+and precise-limit/override requests), the application now skips the order lookup entirely.
+The LLM still receives relevant policy excerpts and writes the explanation, but has no
+personalized order context to inspect. I also bounded 429 retry waits for serverless use.
+
+## Final — 10/10 visible cases passed
+
+`final_answers.jsonl` records the post-change run; all route and content assertions passed.
+The visible set exposed no remaining failures. Next I would add adversarial hidden-style
+tests for prompt injection and cross-account order IDs, plus retrieval-recall telemetry.
