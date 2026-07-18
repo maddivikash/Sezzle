@@ -12,7 +12,7 @@ function addMessage(text, kind, route) {
   const paragraph = document.createElement('p');
   paragraph.textContent = text;
   content.append(paragraph);
-  if (route) { const tag = document.createElement('span'); tag.className = 'route-tag'; tag.textContent = route === 'escalate' ? 'Specialist support' : 'Sezzle assistant'; content.append(tag); }
+  if (route && route !== 'smalltalk') { const tag = document.createElement('span'); tag.className = 'route-tag'; tag.textContent = route === 'escalate' ? 'Specialist support' : 'Sezzle assistant'; content.append(tag); }
   article.append(content); messages.append(article); messages.scrollTop = messages.scrollHeight;
   return article;
 }

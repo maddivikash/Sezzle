@@ -54,6 +54,23 @@ ESCALATION_PATTERNS = (
     r"\b(open|file|start).{0,30}\bdispute\b",
 )
 HARDSHIP_PATTERN = re.compile(r"\b(hardship|lost my job|medical emergency|natural disaster)\b", re.I)
+# Conversational filler that carries no support request. Handled without a model
+# call so a bare "hi" or "ok" gets a natural reply instead of a repeated canned
+# greeting. Matched only when the whole message is filler (see _small_talk_reply).
+GREETINGS = frozenset(
+    {"hi", "hii", "hiii", "hey", "heya", "hiya", "hello", "helo", "hlo", "hl",
+     "yo", "hi there", "hey there", "good morning", "good afternoon",
+     "good evening", "greetings"}
+)
+THANKS = frozenset(
+    {"thanks", "thank you", "thankyou", "thx", "ty", "tysm", "appreciate it",
+     "much appreciated", "thanks a lot"}
+)
+CLOSERS = frozenset(
+    {"ok", "okay", "okey", "k", "kk", "cool", "great", "nice", "fine", "alright",
+     "got it", "done", "bye", "goodbye", "see you", "cya", "no thanks",
+     "thats all", "that is all"}
+)
 ORDER_HINT = re.compile(
     r"\b(my|next|upcoming|missed|reschedul|move|push back|return|refund|payment|installment|order)\b",
     re.I,
@@ -87,6 +104,9 @@ class SupportAgent:
                     "account changes or promise an outcome here."
                 ),
             }
+        small_talk = self._small_talk_reply(question)
+        if small_talk:
+            return {"route": "smalltalk", "answer": small_talk}
         policy_context = self._retrieve_policies(question)
         forced_escalation = any(re.search(pattern, question, re.I) for pattern in ESCALATION_PATTERNS)
         # A safe handoff does not need personalized order data. On sensitive
@@ -109,6 +129,31 @@ class SupportAgent:
         if route in {"tool", "both"} and not order_context.used:
             route = "policy" if not forced_escalation else "escalate"
         return {"route": route, "answer": answer}
+
+    def _small_talk_reply(self, question: str) -> str | None:
+        """Return a canned reply when the entire message is conversational filler.
+
+        Keeping this stateless and outside the model avoids a needless API call and
+        the awkward repeated greeting seen when a bare "hi" or "ok" reaches Gemini
+        with no policy or order context to ground an answer.
+        """
+        normalized = re.sub(r"[^a-z\s]", "", question.lower())
+        normalized = re.sub(r"\s+", " ", normalized).strip()
+        if not normalized:
+            return None
+        if normalized in GREETINGS:
+            return (
+                "Hi! I can help with your Sezzle payments, orders, refunds, and "
+                "account. What would you like to know?"
+            )
+        if normalized in THANKS:
+            return "You’re welcome! Is there anything else I can help you with?"
+        if normalized in CLOSERS:
+            return (
+                "Sure thing — I’m here whenever you need help with your Sezzle "
+                "payments, orders, refunds, or account."
+            )
+        return None
 
     def _retrieve_policies(self, question: str) -> str:
         """Small lexical retrieval is sufficient for 12 short, versioned documents."""

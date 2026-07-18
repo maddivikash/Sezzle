@@ -36,6 +36,14 @@ The required grader contract is `python3 run_cases.py <cases.jsonl> <answers.jso
 
 The agent retrieves up to three relevant local policy files, then performs a scoped mock-order lookup only for the authenticated `user_id`. It passes sanitized, owned orders—not arbitrary order IDs—to Gemini. A defensive route guardrail forces escalation for fraud, hardship, dispute filing, credit-report corrections, and specific limit/decline override requests. Gemini writes the customer-facing answer, with route/output validation after the call.
 
+Messages that are entirely conversational filler (a bare "hi", "ok", "thanks") are answered from a small stateless map (`route: smalltalk`) without a model call, so greetings and acknowledgements get a natural reply instead of a repeated canned greeting.
+
+## Web interface and deployment
+
+A static chat UI (`index.html`, `styles.css`, `app.js`) talks to a Vercel serverless endpoint at `api/chat.py`, which wraps the same `SupportAgent`. `vercel.json` bundles `agent.py` and `data/**` with the function, and `.vercelignore` keeps `.env`, evaluation scripts, and artifacts out of deployments.
+
+Deployment environment variables: `GEMINI_API_KEY` (required), `GEMINI_MODEL`, and `GEMINI_MAX_RETRY_SECONDS` (bounds the 429 backoff so a rate-limit surfaces as a clean error instead of a serverless timeout; defaults to 60 for the CLI, set low in production).
+
 ## Honest limitations / next steps
 
 This is intentionally a take-home-sized retrieval system: lexical ranking may miss paraphrases, and high-risk keyword detection should become a measured classifier. I would add adversarial tests, structured telemetry, policy versioning, answer caching, retrieval-recall monitoring, and a human escalation integration. `artifacts/ITERATION.md` documents the recorded baseline and final evaluations.
