@@ -89,7 +89,10 @@ class SupportAgent:
             }
         policy_context = self._retrieve_policies(question)
         forced_escalation = any(re.search(pattern, question, re.I) for pattern in ESCALATION_PATTERNS)
-        order_context = self._lookup_my_orders(question, user_id)
+        # A safe handoff does not need personalized order data. On sensitive
+        # requests (especially fraud), skip the tool entirely to minimize what can
+        # enter the model context on a possibly compromised account.
+        order_context = OrderContext(False, []) if forced_escalation else self._lookup_my_orders(question, user_id)
         result = self._ask_gemini(question, user_id, policy_context, order_context, forced_escalation)
 
         route = result.get("route", "escalate").lower()
