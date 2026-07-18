@@ -1,0 +1,9 @@
+# Secrets and local-only artifacts must never reach the deployment bundle.
+.env
+.env.example
+__pycache__/
+artifacts/
+cases/
+*.pyc
+run_cases.py
+evaluate_visible.py

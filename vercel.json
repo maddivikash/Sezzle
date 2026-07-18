@@ -1,0 +1,8 @@
+{
+  "functions": {
+    "api/chat.py": {
+      "maxDuration": 30,
+      "includeFiles": "{agent.py,data/**}"
+    }
+  }
+}

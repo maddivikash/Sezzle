@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#121826" />
+    <title>Sezzle Support</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Sezzle Support home">
+          <span class="brand-mark" aria-hidden="true">S</span>
+          <span>sezzle<span class="brand-dot">.</span></span>
+        </a>
+        <span class="secure"><span class="secure-dot"></span> Secure support</span>
+      </header>
+
+      <section class="support-card" aria-labelledby="welcome-title">
+        <aside class="intro">
+          <p class="eyebrow">SUPPORT, SIMPLIFIED</p>
+          <h1 id="welcome-title">Hi there. How can we help?</h1>
+          <p class="intro-copy">Get clear answers about payments, orders, refunds, and your account.</p>
+          <div class="trust-note">
+            <span aria-hidden="true">✦</span>
+            <p>Your details stay private. We only use your account context to help with your request.</p>
+          </div>
+        </aside>
+
+        <section class="chat" aria-label="Support chat">
+          <div class="chat-heading">
+            <div>
+              <p class="eyebrow">SEZZLE ASSISTANT</p>
+              <h2>What do you need today?</h2>
+            </div>
+            <label class="account-picker">Demo account
+              <select id="user-id" aria-label="Demo account">
+                <option value="u001">Alex · u001</option>
+                <option value="u002" selected>Jordan · u002</option>
+                <option value="u003">Taylor · u003</option>
+                <option value="u004">Morgan · u004</option>
+                <option value="u005">Casey · u005</option>
+                <option value="u006">Riley · u006</option>
+                <option value="u007">Avery · u007</option>
+                <option value="u008">Sam · u008</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="messages" class="messages" aria-live="polite">
+            <article class="message assistant-message">
+              <span class="avatar" aria-hidden="true">S</span>
+              <p>Ask me anything about your Sezzle account or a recent order.</p>
+            </article>
+          </div>
+
+          <div class="suggestions" aria-label="Suggested questions">
+            <button type="button">When is my next payment?</button>
+            <button type="button">How do refunds work?</button>
+            <button type="button">Can I reschedule a payment?</button>
+          </div>
+
+          <form id="chat-form" class="composer">
+            <label class="sr-only" for="question">Your message</label>
+            <textarea id="question" rows="1" maxlength="1000" placeholder="Write a message…" required></textarea>
+            <button id="send" type="submit" aria-label="Send message">
+              <span aria-hidden="true">↑</span>
+            </button>
+          </form>
+          <p class="disclaimer">This is a support assistant. For sensitive account issues, we’ll connect you with a specialist.</p>
+        </section>
+      </section>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>
